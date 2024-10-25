@@ -1,3 +1,5 @@
+import json
+
 from django.http import JsonResponse
 from django.templatetags.static import static
 
@@ -67,5 +69,6 @@ def product_list_api(request):
 
 
 def register_order(request):
-    print("Это оно")
+    data = json.loads(request.body.decode())
+    print(data)
     return JsonResponse({})

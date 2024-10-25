@@ -1,0 +1,1 @@
+{'products': [{'product': 2, 'quantity': 2}, {'product': 1, 'quantity': 2}], 'firstname': 'Степан', 'lastname': 'Макаров', 'phonenumber': '+79600770542', 'address': '48/15'}
