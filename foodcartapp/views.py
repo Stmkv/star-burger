@@ -1,3 +1,6 @@
+from email.mime import application
+
+from django.core.serializers import serialize
 from django.http import Http404, JsonResponse
 from django.templatetags.static import static
 from rest_framework import status
@@ -6,6 +9,7 @@ from rest_framework.response import Response
 from rest_framework.test import APITestCase
 
 from .models import Order, OrderItem, Product
+from .serializers import OrderSerializer
 
 
 def banners_list_api(request):
@@ -72,25 +76,17 @@ def product_list_api(request):
 
 @api_view(["POST"])
 def register_order(request):
-    data = request.data
-    if (
-        "products" not in data
-        or not isinstance(data["products"], list)
-        or not data["products"]
-    ):
-        return Response(
-            {"error": "products key not presented or not lsit"},
-            status=status.HTTP_400_BAD_REQUEST,
-        )
+    serializer = OrderSerializer(data=request.data)
+    serializer.is_valid(raise_exception=True)
 
     order = Order.objects.create(
-        first_name=data["firstname"],
-        last_name=data["lastname"],
-        phone_number=data["phonenumber"],
-        address=data["address"],
+        firstname=serializer.validated_data["firstname"],
+        lastname=serializer.validated_data["lastname"],
+        phonenumber=serializer.validated_data["phonenumber"],
+        address=serializer.validated_data["address"],
     )
 
-    for user_order in data["products"]:
+    for user_order in serializer.validated_data["products"]:
         product_id = user_order.get("product")
         product_quantity = user_order.get("quantity")
 
@@ -98,4 +94,4 @@ def register_order(request):
         OrderItem.objects.create(
             order=order, product=product, quantity=product_quantity
         )
-    return Response(data)
+    return Response({"application_id": application.id})
