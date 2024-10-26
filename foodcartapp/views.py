@@ -5,6 +5,8 @@ from django.http import Http404, JsonResponse
 from django.templatetags.static import static
 from rest_framework import status
 from rest_framework.decorators import api_view
+from rest_framework.parsers import JSONParser
+from rest_framework.renderers import JSONRenderer
 from rest_framework.response import Response
 from rest_framework.test import APITestCase
 
@@ -86,12 +88,8 @@ def register_order(request):
         address=serializer.validated_data["address"],
     )
 
-    for user_order in serializer.validated_data["products"]:
-        product_id = user_order.get("product")
-        product_quantity = user_order.get("quantity")
+    order_item_field = serializer.validated_data["products"]
+    order_items = [OrderItem(order=order, **fields) for fields in order_item_field]
+    OrderItem.objects.bulk_create(order_items)
 
-        product = Product.objects.get(id=product_id)
-        OrderItem.objects.create(
-            order=order, product=product, quantity=product_quantity
-        )
-    return Response({"application_id": application.id})
+    return Response(serializer.data, status=200)
