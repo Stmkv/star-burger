@@ -1,7 +1,9 @@
-from django.http import JsonResponse
+from django.http import Http404, JsonResponse
 from django.templatetags.static import static
+from rest_framework import status
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
+from rest_framework.test import APITestCase
 
 from .models import Order, OrderItem, Product
 
@@ -71,6 +73,15 @@ def product_list_api(request):
 @api_view(["POST"])
 def register_order(request):
     data = request.data
+    if (
+        "products" not in data
+        or not isinstance(data["products"], list)
+        or not data["products"]
+    ):
+        return Response(
+            {"error": "products key not presented or not lsit"},
+            status=status.HTTP_400_BAD_REQUEST,
+        )
 
     order = Order.objects.create(
         first_name=data["firstname"],
