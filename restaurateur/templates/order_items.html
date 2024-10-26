@@ -14,6 +14,7 @@
    <table class="table table-responsive">
     <tr>
       <th>ID заказа</th>
+      <th>Сумма заказа</th>
       <th>Клиент</th>
       <th>Телефон</th>
       <th>Адрес доставки</th>
@@ -21,6 +22,7 @@
     {% for order in orders %}
     <tr>
       <th>{{ order.id }}</th>
+      <th>{{ order.total_price }}</th>
       <th>{{ order.firstname }}{{ order.lastname }}</th>
       <th>{{ order.phonenumber }}</th>
       <th>{{ order.address }}</th>
