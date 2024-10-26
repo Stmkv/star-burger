@@ -117,6 +117,7 @@ class Order(models.Model):
     lastname = models.CharField("Фамилия", max_length=20, null=False)
     phonenumber = PhoneNumberField("Телефон", null=False, db_index=True)
     address = models.CharField(verbose_name="Адресс", max_length=200, null=False)
+    objects = models.Manager()
     price = OrderManager()
 
     class Meta:
@@ -137,7 +138,9 @@ class OrderItem(models.Model):
         related_name="ordered_items",
         verbose_name="продукт",
     )
-    quantity = models.PositiveIntegerField("количество")
+    quantity = models.PositiveIntegerField(
+        "количество", validators=[MinValueValidator(1)]
+    )
 
     class Meta:
         verbose_name = "Заказанный товар"
