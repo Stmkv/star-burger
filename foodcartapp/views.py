@@ -1,14 +1,7 @@
-from email.mime import application
-
-from django.core.serializers import serialize
-from django.http import Http404, JsonResponse
+from django.http import JsonResponse
 from django.templatetags.static import static
-from rest_framework import status
 from rest_framework.decorators import api_view
-from rest_framework.parsers import JSONParser
-from rest_framework.renderers import JSONRenderer
 from rest_framework.response import Response
-from rest_framework.test import APITestCase
 
 from .models import Order, OrderItem, Product
 from .serializers import OrderSerializer
