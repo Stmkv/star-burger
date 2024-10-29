@@ -2,6 +2,7 @@ import io
 from ast import Delete
 from dataclasses import field
 
+from django.db import transaction
 from rest_framework.parsers import JSONParser
 from rest_framework.renderers import JSONRenderer
 from rest_framework.serializers import ListField, ModelSerializer
@@ -22,6 +23,7 @@ class OrderSerializer(ModelSerializer):
         model = Order
         fields = ["id", "firstname", "lastname", "phonenumber", "address", "products"]
 
+    @transaction.atomic
     def create(self, validated_data):
         order = Order.objects.create(
             firstname=validated_data["firstname"],
