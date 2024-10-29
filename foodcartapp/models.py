@@ -1,5 +1,6 @@
 from tabnanny import verbose
 
+from django import db
 from django.core.validators import MinValueValidator
 from django.db import models
 from django.utils import timezone
@@ -125,6 +126,10 @@ class Order(models.Model):
         (IN_DELEVERY, "В доставке"),
         (COMPLETED, "Завершен"),
     ]
+    ORDER_PAYMENT_METHOD = [
+        ("card", "По карте"),
+        ("cash", "Наличные"),
+    ]
 
     firstname = models.CharField("Имя", max_length=20, null=False)
     lastname = models.CharField("Фамилия", max_length=20, null=False)
@@ -135,6 +140,13 @@ class Order(models.Model):
         choices=ORDER_STATUS_CHOICES,
         default=UNPROCESSING,
         max_length=3,
+        db_index=True,
+    )
+    payment_method = models.CharField(
+        verbose_name="Способ оплаты",
+        choices=ORDER_PAYMENT_METHOD,
+        default="По карте",
+        max_length=4,
         db_index=True,
     )
     comments = models.TextField(
