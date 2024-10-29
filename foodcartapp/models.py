@@ -107,7 +107,8 @@ class RestaurantMenuItem(models.Model):
 class OrderManager(models.Manager):
     def get_total_price(self):
         return self.annotate(
-            total_price=models.Sum("items__price") * models.F("items__quantity")
+            total_price=models.Sum("items__product__price")
+            * models.F("items__quantity")
         )
 
 
