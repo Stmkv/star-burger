@@ -113,10 +113,29 @@ class OrderManager(models.Manager):
 
 
 class Order(models.Model):
+    UNPROCESSING = "new"
+    PROCESSING = "prc"
+    IN_DELEVERY = "del"
+    COMPLETED = "com"
+
+    ORDER_STATUS_CHOICES = [
+        (UNPROCESSING, "Необработанный"),
+        (PROCESSING, "Готовится"),
+        (IN_DELEVERY, "В доставке"),
+        (COMPLETED, "Завершен"),
+    ]
+
     firstname = models.CharField("Имя", max_length=20, null=False)
     lastname = models.CharField("Фамилия", max_length=20, null=False)
     phonenumber = PhoneNumberField("Телефон", null=False, db_index=True)
     address = models.CharField(verbose_name="Адресс", max_length=200, null=False)
+    status = models.CharField(
+        verbose_name="Статус заказа",
+        choices=ORDER_STATUS_CHOICES,
+        default=UNPROCESSING,
+        max_length=3,
+        db_index=True,
+    )
     objects = models.Manager()
     price = OrderManager()
 

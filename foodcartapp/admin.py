@@ -151,8 +151,3 @@ class OrderAdmin(admin.ModelAdmin):
             return HttpResponseRedirect(reverse("restaurateur:view_orders"))
         else:
             return res
-
-
-@admin.register(OrderItem)
-class OrderItemAdmin(admin.ModelAdmin):
-    list_display = ("order", "product", "quantity", "price")
