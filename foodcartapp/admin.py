@@ -1,6 +1,10 @@
 from dataclasses import field
+from gettext import install
 
 from django.contrib import admin
+from django.db import transaction
+from django.forms import BaseModelFormSet, ModelForm
+from django.http import HttpRequest
 from django.shortcuts import reverse
 from django.templatetags.static import static
 from django.utils.html import format_html
@@ -118,7 +122,7 @@ class ProductAdmin(admin.ModelAdmin):
 
 class OrderItemLine(admin.TabularInline):
     model = OrderItem
-    field = ["product", "quantity"]
+    fields = ["product", "quantity", "price"]
 
     short_description = "Товар"
 
@@ -127,7 +131,17 @@ class OrderItemLine(admin.TabularInline):
 class OrderAdmin(admin.ModelAdmin):
     inlines = [OrderItemLine]
 
+    def save_formset(self, request, form, formset, change):
+        order_items = formset.save(commit=False)
+        for item in order_items:
+            if item.price == 0.00:
+                product = Product.objects.get(id=item.product.id)
+                item.price = product.price
+                item.save()
+            else:
+                item.save()
+
 
 @admin.register(OrderItem)
 class OrderItemAdmin(admin.ModelAdmin):
-    list_display = ("order", "product", "quantity")
+    list_display = ("order", "product", "quantity", "price")
