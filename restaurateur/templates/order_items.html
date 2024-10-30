@@ -41,8 +41,8 @@
           {% else %}
               <details>
                 <summary>Доступные рестораны</summary>
-              {% for restaurant in order.restaurants %}
-                <li>{{ restaurant }}</li>
+              {% for distance, restaurant_name  in order.restorants_distance %}
+                <li>{{ restaurant_name }} - {{ distance }}</li>
               {% endfor %}
               </details>
             </td>
