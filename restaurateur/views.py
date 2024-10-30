@@ -7,7 +7,7 @@ from django.shortcuts import redirect, render
 from django.urls import reverse_lazy
 from django.views import View
 
-from foodcartapp.models import Order, Product, Restaurant
+from foodcartapp.models import Order, Product, Restaurant, RestaurantMenuItem
 
 
 class Login(forms.Form):
@@ -105,7 +105,20 @@ def view_restaurants(request):
 
 @user_passes_test(is_manager, login_url="restaurateur:login")
 def view_orders(request):
-    orders = Order.price.get_total_price()
+    orders = (
+        Order.objects.get_total_price().prefetch_related("items").order_by("status")
+    )
+    menu_item = RestaurantMenuItem.objects.filter(availability=True)
+
+    for order in orders:
+        restorants = {}
+        for item in order.items.all():
+            restorants = menu_item.filter(product=item.product).values_list(
+                "restaurant__name", flat=True
+            )
+        order.restaurants = restorants
+        if order.restaurant:
+            order.status = "prc"
     return render(
         request,
         template_name="order_items.html",

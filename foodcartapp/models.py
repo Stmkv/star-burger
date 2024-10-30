@@ -106,7 +106,7 @@ class RestaurantMenuItem(models.Model):
         return f"{self.restaurant.name} - {self.product.name}"
 
 
-class OrderManager(models.Manager):
+class OrderQuerySet(models.QuerySet):
     def get_total_price(self):
         return self.annotate(
             total_price=models.Sum("items__product__price")
@@ -161,8 +161,15 @@ class Order(models.Model):
     delivered_at = models.DateTimeField(
         "Дата доставки", null=True, blank=True, db_index=True
     )
-    objects = models.Manager()
-    price = OrderManager()
+    restaurant = models.ForeignKey(
+        Restaurant,
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name="orders",
+    )
+
+    objects = OrderQuerySet.as_manager()
 
     class Meta:
         verbose_name = "Заказ"
