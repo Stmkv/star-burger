@@ -13,6 +13,7 @@ from geopy import distance
 
 from foodcartapp.models import Order, Product, Restaurant, RestaurantMenuItem
 from geo.models import Place
+from geo.views import fetch_coordinates
 from star_burger import settings
 
 
@@ -133,11 +134,22 @@ def view_orders(request):
         restorants_distances = []
         for restaurant in order.restaurants:
             restaurant = restaurants.get(name=restaurant)
-            restaurant_place = places.get(address=restaurant.address)
-            restaurant_coordinates_lon_lat = (
-                restaurant_place.longitude,
-                restaurant_place.latitude,
+            #!
+            restaurant_address = restaurant.address
+            restorant_coordinates_lon_lat_test = fetch_coordinates(
+                "cc6bfc06-61dc-40b1-9527-f96071ee096c", restaurant_address
             )
+            restaurant_coordinates_lon_lat = (
+                restorant_coordinates_lon_lat_test[1],
+                restorant_coordinates_lon_lat_test[0],
+            )
+            print(restorant_coordinates_lon_lat_test)
+            #!
+            # restaurant_place = places.get(address=restaurant.address)
+            # restaurant_coordinates_lon_lat = (
+            #     restaurant_place.longitude,
+            #     restaurant_place.latitude,
+            # )
 
             if restaurant_coordinates_lon_lat and buyer_coordinates_lon_lat:
                 restorant_distance = round(
