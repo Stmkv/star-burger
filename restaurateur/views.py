@@ -140,10 +140,9 @@ def view_orders(request):
                 "cc6bfc06-61dc-40b1-9527-f96071ee096c", restaurant_address
             )
             restaurant_coordinates_lon_lat = (
-                restorant_coordinates_lon_lat_test[1],
                 restorant_coordinates_lon_lat_test[0],
+                restorant_coordinates_lon_lat_test[1],
             )
-            print(restorant_coordinates_lon_lat_test)
             #!
             # restaurant_place = places.get(address=restaurant.address)
             # restaurant_coordinates_lon_lat = (

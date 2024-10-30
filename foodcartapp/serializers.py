@@ -1,6 +1,8 @@
 import requests
 from django.conf import settings
 from django.db import transaction
+from django.db.models.signals import post_save
+from django.dispatch import receiver
 from django.utils import timezone
 from rest_framework.serializers import ModelSerializer
 
@@ -39,11 +41,26 @@ class OrderSerializer(ModelSerializer):
         place, created = Place.objects.update_or_create(
             address=order.address, defaults={"create_date": timezone.now()}
         )
+
         try:
             if created:
                 coordinates = fetch_coordinates(settings.YANDEX_API_KEY, order.address)
-                place.latitude, place.longitude = coordinates
+                place.longitude, place.latitude = coordinates
                 place.save()
         except requests.exceptions.HTTPError:
             print("Не удалось распознать адрес")
         return order
+
+
+@receiver(post_save, sender=Order)
+def update_place_on_order_change(sender, instance, **kwargs):
+    place, created = Place.objects.update_or_create(
+        address=instance.address, defaults={"create_date": timezone.now()}
+    )
+    try:
+        if created:
+            coordinates = fetch_coordinates(settings.YANDEX_API_KEY, instance.address)
+            place.longitude, place.latitude = coordinates
+            place.save()
+    except requests.exceptions.HTTPError:
+        print("Не удалось распознать адрес")
