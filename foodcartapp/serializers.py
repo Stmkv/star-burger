@@ -1,11 +1,11 @@
-import io
-from ast import Delete
-from dataclasses import field
-
+import requests
+from django.conf import settings
 from django.db import transaction
-from rest_framework.parsers import JSONParser
-from rest_framework.renderers import JSONRenderer
-from rest_framework.serializers import ListField, ModelSerializer
+from django.utils import timezone
+from rest_framework.serializers import ModelSerializer
+
+from geo.models import Place
+from geo.views import fetch_coordinates
 
 from .models import Order, OrderItem
 
@@ -36,4 +36,15 @@ class OrderSerializer(ModelSerializer):
         order_items = [OrderItem(order=order, **fields) for fields in order_item_field]
         OrderItem.objects.bulk_create(order_items)
 
+        place, created = Place.objects.update_or_create(
+            address=order.address, defaults={"create_date": timezone.now()}
+        )
+        print(created)  # TODO Убрать!
+        try:
+            if created:
+                coordinates = fetch_coordinates(settings.YANDEX_API_KEY, order.address)
+                place.latitude, place.longitude = coordinates
+                place.save()
+        except requests.exceptions.HTTPError:
+            print("Не удалось распознать адрес")
         return order

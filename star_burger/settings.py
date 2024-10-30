@@ -27,6 +27,7 @@ INSTALLED_APPS = [
     "rest_framework",
     "phonenumber_field",
     "debug_toolbar",
+    "geo",
 ]
 
 MIDDLEWARE = [

@@ -1,3 +1,4 @@
+import re
 from os import name
 
 import requests
@@ -5,36 +6,14 @@ from django import forms
 from django.contrib.auth import authenticate, login
 from django.contrib.auth import views as auth_views
 from django.contrib.auth.decorators import user_passes_test
-from django.http import HttpRequest
 from django.shortcuts import redirect, render
 from django.urls import reverse_lazy
 from django.views import View
-from environs import Env
 from geopy import distance
 
 from foodcartapp.models import Order, Product, Restaurant, RestaurantMenuItem
+from geo.models import Place
 from star_burger import settings
-
-
-def fetch_coordinates(apikey, address):
-    base_url = "https://geocode-maps.yandex.ru/1.x"
-    response = requests.get(
-        base_url,
-        params={
-            "geocode": address,
-            "apikey": apikey,
-            "format": "json",
-        },
-    )
-    response.raise_for_status()
-    found_places = response.json()["response"]["GeoObjectCollection"]["featureMember"]
-
-    if not found_places:
-        return None
-
-    most_relevant = found_places[0]
-    lon, lat = most_relevant["GeoObject"]["Point"]["pos"].split(" ")
-    return lon, lat
 
 
 class Login(forms.Form):
@@ -137,6 +116,7 @@ def view_orders(request):
     )
     menu_item = RestaurantMenuItem.objects.filter(availability=True)
     restaurants = Restaurant.objects.all()
+    places = Place.objects.all()
 
     for order in orders:
         for item in order.items.all():
@@ -147,39 +127,31 @@ def view_orders(request):
         if order.restaurant:
             order.status = "prc"
 
-        try:
-            buyer_coordinates = fetch_coordinates(
-                settings.YANDEX_API_KEY, order.address
+        buyer_place = places.get(address=order.address)
+        buyer_coordinates_lon_lat = (buyer_place.longitude, buyer_place.latitude)
+
+        restorants_distances = []
+        for restaurant in order.restaurants:
+            restaurant = restaurants.get(name=restaurant)
+            restaurant_place = places.get(address=restaurant.address)
+            restaurant_coordinates_lon_lat = (
+                restaurant_place.longitude,
+                restaurant_place.latitude,
             )
-            buyer_coordinates_lon_lat = (buyer_coordinates[1], buyer_coordinates[0])
 
-            restorants_distance = []
-            for restaurant in order.restaurants:
-                restaurant_addrress = restaurants.get(name=restaurant).address
-                restaurant_coordinates = fetch_coordinates(
-                    settings.YANDEX_API_KEY, restaurant_addrress
+            if restaurant_coordinates_lon_lat and buyer_coordinates_lon_lat:
+                restorant_distance = round(
+                    distance.distance(
+                        buyer_coordinates_lon_lat,
+                        restaurant_coordinates_lon_lat,
+                    ).km,
+                    2,
                 )
-                restaurant_coordinates_lon_lat = (
-                    restaurant_coordinates[1],
-                    restaurant_coordinates[0],
-                )
-                restorants_distance.append(
-                    (
-                        round(
-                            distance.distance(
-                                buyer_coordinates_lon_lat,
-                                restaurant_coordinates_lon_lat,
-                            ).km,
-                            2,
-                        ),
-                        restaurant,
-                    )
-                )
-            restorants_distance.sort(key=lambda x: x[1], reverse=True)
-        except requests.exceptions.HTTPError:
-            print("Не удалось распознать адрес")
 
-        order.restorants_distance = restorants_distance
+            restorants_distances.append((restaurant, restorant_distance))
+        order.restorants_distance = sorted(
+            restorants_distances, key=lambda x: x[1], reverse=True
+        )
     return render(
         request,
         template_name="order_items.html",
