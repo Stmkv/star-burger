@@ -39,7 +39,6 @@ class OrderSerializer(ModelSerializer):
         place, created = Place.objects.update_or_create(
             address=order.address, defaults={"create_date": timezone.now()}
         )
-        print(created)  # TODO Убрать!
         try:
             if created:
                 coordinates = fetch_coordinates(settings.YANDEX_API_KEY, order.address)
