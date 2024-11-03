@@ -48,7 +48,8 @@ class OrderSerializer(ModelSerializer):
                 place.longitude, place.latitude = coordinates
                 place.save()
         except requests.exceptions.HTTPError:
-            print("Не удалось распознать адрес")
+            place.longitude, place.latitude = 0, 0
+            place.save()
         return order
 
 
