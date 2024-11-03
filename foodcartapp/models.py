@@ -1,3 +1,5 @@
+from re import T
+
 from django.core.validators import MinValueValidator
 from django.db import models
 from django.utils import timezone
@@ -146,11 +148,9 @@ class Order(models.Model):
         max_length=4,
         db_index=True,
     )
-    comments = models.TextField(
-        verbose_name="Комментарии", null=True, blank=True, default=""
-    )
+    comments = models.TextField(verbose_name="Комментарии", blank=True, default="")
     register_at = models.DateTimeField(
-        "Дата создания", default=timezone.now, db_index=True
+        "Дата создания", auto_now_add=True, db_index=True
     )
     called_at = models.DateTimeField(
         "Дата звонка ", null=True, blank=True, db_index=True
@@ -194,8 +194,6 @@ class OrderItem(models.Model):
         validators=[MinValueValidator(1)],
         max_digits=10,
         decimal_places=2,
-        null=True,
-        blank=True,
     )
 
     class Meta:
