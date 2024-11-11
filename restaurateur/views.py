@@ -118,10 +118,10 @@ def view_orders(request):
 
     for order in orders:
         for item in order.items.all():
-            restorants = menu_item.filter(product=item.product).values_list(
+            restaurants = menu_item.filter(product=item.product).values_list(
                 "restaurant__name", flat=True
             )
-        order.restaurants = restorants
+        order.restaurants = restaurants
         if order.restaurant:
             order.status = "prc"
 
