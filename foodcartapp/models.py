@@ -1,8 +1,5 @@
-from re import T
-
 from django.core.validators import MinValueValidator
 from django.db import models
-from django.utils import timezone
 from phonenumber_field.modelfields import PhoneNumberField
 
 
@@ -194,6 +191,8 @@ class OrderItem(models.Model):
         validators=[MinValueValidator(1)],
         max_digits=10,
         decimal_places=2,
+        null=True,
+        blank=True,
     )
 
     class Meta:

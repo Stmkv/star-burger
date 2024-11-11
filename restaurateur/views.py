@@ -5,7 +5,6 @@ from django.contrib.auth.decorators import user_passes_test
 from django.shortcuts import redirect, render
 from django.urls import reverse_lazy
 from django.views import View
-from environs import Env
 from geopy import distance
 
 from foodcartapp.models import Order, Product, Restaurant, RestaurantMenuItem
@@ -118,10 +117,10 @@ def view_orders(request):
 
     for order in orders:
         for item in order.items.all():
-            restaurants = menu_item.filter(product=item.product).values_list(
+            restorants = menu_item.filter(product=item.product).values_list(
                 "restaurant__name", flat=True
             )
-        order.restaurants = restaurants
+        order.restaurants = restorants
         if order.restaurant:
             order.status = "prc"
 
