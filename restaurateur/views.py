@@ -1,7 +1,3 @@
-import re
-from os import name
-
-import requests
 from django import forms
 from django.contrib.auth import authenticate, login
 from django.contrib.auth import views as auth_views
@@ -9,6 +5,7 @@ from django.contrib.auth.decorators import user_passes_test
 from django.shortcuts import redirect, render
 from django.urls import reverse_lazy
 from django.views import View
+from environs import Env
 from geopy import distance
 
 from foodcartapp.models import Order, Product, Restaurant, RestaurantMenuItem
@@ -134,22 +131,14 @@ def view_orders(request):
         restorants_distances = []
         for restaurant in order.restaurants:
             restaurant = restaurants.get(name=restaurant)
-            #!
             restaurant_address = restaurant.address
             restorant_coordinates_lon_lat_test = fetch_coordinates(
-                "cc6bfc06-61dc-40b1-9527-f96071ee096c", restaurant_address
+                settings.YANDEX_API_KEY, restaurant_address
             )
             restaurant_coordinates_lon_lat = (
                 restorant_coordinates_lon_lat_test[0],
                 restorant_coordinates_lon_lat_test[1],
             )
-            #!
-            # restaurant_place = places.get(address=restaurant.address)
-            # restaurant_coordinates_lon_lat = (
-            #     restaurant_place.longitude,
-            #     restaurant_place.latitude,
-            # )
-
             if restaurant_coordinates_lon_lat and buyer_coordinates_lon_lat:
                 restorant_distance = round(
                     distance.distance(
