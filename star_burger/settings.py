@@ -1,4 +1,5 @@
 import os
+from email.policy import default
 
 import dj_database_url
 from environs import Env
@@ -8,7 +9,8 @@ env.read_env()
 
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 STATIC_ROOT = os.path.join(BASE_DIR, "staticfiles")
-
+ROLLBAR_TOKEN = env.str("ROLLBAR_TOKEN")
+ROLLBAR_ENVIRONMENT = env.str("ROLLBAR_ENVIRONMENT", default="production")
 
 SECRET_KEY = env("SECRET_KEY")
 DEBUG = env.bool("DEBUG", True)
@@ -39,6 +41,7 @@ MIDDLEWARE = [
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
     "debug_toolbar.middleware.DebugToolbarMiddleware",
+    "rollbar.contrib.django.middleware.RollbarNotifierMiddleware",
 ]
 
 ROOT_URLCONF = "star_burger.urls"
@@ -101,6 +104,15 @@ AUTH_PASSWORD_VALIDATORS = [
         "NAME": "django.contrib.auth.password_validation.NumericPasswordValidator",
     },
 ]
+
+
+ROLLBAR = {
+    "access_token": ROLLBAR_TOKEN,
+    "environment": ROLLBAR_ENVIRONMENT,
+    "code_version": "1.0",
+    "root": BASE_DIR,
+}
+
 
 LANGUAGE_CODE = "ru-RU"
 
