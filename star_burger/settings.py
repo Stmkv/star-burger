@@ -11,7 +11,7 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 STATIC_ROOT = os.path.join(BASE_DIR, "staticfiles")
 ROLLBAR_TOKEN = env.str("ROLLBAR_TOKEN")
 ROLLBAR_ENVIRONMENT = env.str("ROLLBAR_ENVIRONMENT", default="production")
-
+DATABASE_URL = env('DATABASE_URL')
 SECRET_KEY = env("SECRET_KEY")
 DEBUG = env.bool("DEBUG", True)
 
@@ -84,10 +84,14 @@ WSGI_APPLICATION = "star_burger.wsgi.application"
 MEDIA_ROOT = os.path.join(BASE_DIR, "media")
 MEDIA_URL = "/media/"
 
+
 DATABASES = {
-    "default": dj_database_url.config(
-        default="sqlite:////{0}".format(os.path.join(BASE_DIR, "db.sqlite3"))
+    'default': dj_database_url.parse(
+        DATABASE_URL
     )
+}
+DATABASES['default']['OPTIONS'] = {
+    'options': '-c search_path=starburger_db_schema'
 }
 
 AUTH_PASSWORD_VALIDATORS = [

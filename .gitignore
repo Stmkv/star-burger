@@ -143,3 +143,4 @@ cython_debug/
 
 .parcel-cache/
 staticfiles
+starburger_db.json

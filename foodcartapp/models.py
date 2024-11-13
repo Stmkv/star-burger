@@ -142,7 +142,6 @@ class Order(models.Model):
         verbose_name="Способ оплаты",
         choices=ORDER_PAYMENT_METHOD,
         default="По карте",
-        max_length=4,
         db_index=True,
     )
     comments = models.TextField(verbose_name="Комментарии", blank=True, default="")
