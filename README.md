@@ -59,13 +59,11 @@ python -m venv venv
 pip install -r requirements.txt
 ```
 
-Определите переменные окружения. Создать файл `.env` в каталоге `star_burger/` и положите туда такой код, также понадобится API_KEY для работы [Yandex geocoder API](https://developer.tech.yandex.ru/services) и Token [Rollbar](https://app.rollbar.com/):
+Определите переменные окружения. Создать файл `.env` в каталоге `star_burger/` и положите туда такой код, также понадобится API_KEY для работы [Yandex geocoder API](https://developer.tech.yandex.ru/services):
 
 ```sh
 YANDEX_API_KEY = <Ваш API KEY>
 SECRET_KEY=django-insecure-0if40nf4nf93n4
-ROLLBAR_TOKEN=<Token Rollbar>
-ROLLBAR_ENVIRONMENT=<Environment rollbar>
 ```
 
 Создайте файл базы данных SQLite и отмигрируйте её следующей командой:
@@ -150,11 +148,59 @@ Parcel будет следить за файлами в каталоге `bundle
 ./node_modules/.bin/parcel build bundles-src/index.js --dist-dir bundles --public-url="./"
 ```
 
+Понадобится и Token [Rollbar](https://app.rollbar.com/):
+
 Настроить бэкенд: создать файл `.env` в каталоге `star_burger/` со следующими настройками:
 
 - `DEBUG` — дебаг-режим. Поставьте `False`.
 - `SECRET_KEY` — секретный ключ проекта. Он отвечает за шифрование на сайте. Например, им зашифрованы все пароли на вашем сайте.
 - `ALLOWED_HOSTS` — [см. документацию Django](https://docs.djangoproject.com/en/3.1/ref/settings/#allowed-hosts)
+- ROLLBAR_TOKEN=`<Token Rollbar>`
+- ROLLBAR_ENVIRONMENT=`<Environment rollbar>`
+- DATABASE_URL="postgresql://mydb_user:password@localhost:port/mydb_name"
+
+Подключение Postgresql:
+
+Для сохранения данных из прежней базы данных:
+
+```
+python3 manage.py dumpdata --exclude contenttypes > starburger_db.json  
+```
+
+```sudo
+sudo apt-get install python-pip python-dev libpq-dev postgresql postgresql-contrib
+sudo su - postgres
+psql
+CREATE DATABASE myproject;
+CREATE USER myprojectuser WITH PASSWORD 'password';
+ALTER ROLE myprojectuser SET client_encoding TO 'utf8';
+ALTER ROLE myprojectuser SET default_transaction_isolation TO 'read committed';
+ALTER ROLE myprojectuser SET timezone TO 'UTC';
+GRANT ALL PRIVILEGES ON DATABASE myproject TO myprojectuser;
+\q
+exit
+```
+
+Настройка в `star_burger.settings.py`
+
+```
+DATABASES = {
+    'default': dj_database_url.parse(
+        DATABASE_URL
+    )
+}
+
+DATABASES['default']['OPTIONS'] = {
+    'options': '-c search_path=you_schema'
+}
+```
+
+После чего выполнить команду для создания необходимых полей и загрузки данных:
+
+```
+python3 manage.py migrate
+python3 manage.py loaddata starburger_db.json
+```
 
 ## Цели проекта
 
