@@ -9,9 +9,9 @@ env.read_env()
 
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 STATIC_ROOT = os.path.join(BASE_DIR, "staticfiles")
-ROLLBAR_TOKEN = env.str("ROLLBAR_TOKEN")
+ROLLBAR_TOKEN = env.str("ROLLBAR_TOKEN", default="")
 ROLLBAR_ENVIRONMENT = env.str("ROLLBAR_ENVIRONMENT", default="production")
-DATABASE_URL = env('DATABASE_URL')
+DATABASE_URL = env("DATABASE_URL")
 SECRET_KEY = env("SECRET_KEY")
 DEBUG = env.bool("DEBUG", True)
 
@@ -85,14 +85,8 @@ MEDIA_ROOT = os.path.join(BASE_DIR, "media")
 MEDIA_URL = "/media/"
 
 
-DATABASES = {
-    'default': dj_database_url.parse(
-        DATABASE_URL
-    )
-}
-DATABASES['default']['OPTIONS'] = {
-    'options': '-c search_path=starburger_db_schema'
-}
+DATABASES = {"default": dj_database_url.parse(DATABASE_URL)}
+DATABASES["default"]["OPTIONS"] = {"options": "-c search_path=starburger_db_schema"}
 
 AUTH_PASSWORD_VALIDATORS = [
     {
