@@ -1,0 +1,12 @@
+version: "3.8"
+
+services:
+  postgers-db:
+    image: postgres:latest
+    container_name: postgers
+    environment:
+      POSTGRES_USER: stepan
+      POSTGRES_PASSWORD: 549262
+      POSTGRES_DB: starburger
+    ports:
+      - "5432:5432"
