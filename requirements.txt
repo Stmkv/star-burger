@@ -9,3 +9,4 @@ pillow==11.0.0
 requests==2.32.3
 rollbar==1.0.0
 psycopg2==2.9.10
+gunicorn==23.0.0
